@@ -1,0 +1,16 @@
+# --- Framework Web & Validation ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.10.0
+pydantic-settings>=2.4.0
+
+# --- Interface Utilisateur ---
+streamlit>=1.40.0
+
+# --- Traitement de données & AI modals ---
+#nltk>=3.9.1
+requests>=2.32.0
+huggingface_hub>=1.6.0
+
+# --- Journalisation & Utilitaires ---
+loguru>=0.7.2
