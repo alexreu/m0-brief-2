@@ -19,13 +19,13 @@ pip install -r requirements.txt
 
 ## Lancer le projet
 
-Terminal 1 (API) :
+API :
 
 ```bash
 uvicorn api:app --reload --port 8000
 ```
 
-Terminal 2 (Interface) :
+UI :
 
 ```bash
 streamlit run app.py
