@@ -3,10 +3,12 @@ from typing import cast
 
 import torch
 from diffusers import AutoPipelineForText2Image  # type: ignore
-from fastapi import FastAPI, Response, UploadFile
+from fastapi import FastAPI, HTTPException, Response, UploadFile
+from loguru import logger
 from transformers import pipeline
 
 app = FastAPI()
+logger.add("logs/image_generation.log", rotation="500 MB", level="INFO")
 
 audio_transcriptor = pipeline(
     "automatic-speech-recognition",
@@ -34,6 +36,8 @@ async def transcribe_audio(file: UploadFile):
     audio_input = await file.read()
     result = cast(dict[str, str], audio_transcriptor(audio_input))
 
+    logger.info(f"Transcription de l'audio : {result['text']}")
+
     return result["text"]
 
 
@@ -46,8 +50,11 @@ def generate_prompt(transcription: str):
         {"role": "user", "content": transcription},
     ]
     generated = prompt_generator(messages, max_new_tokens=70, do_sample=False)
+    result = generated[0]["generated_text"]
 
-    return cast(str, generated[0]["generated_text"])
+    logger.info(f"Prompt généré : {result}")
+
+    return cast(str, result)
 
 
 def generate_image(prompt: str):
@@ -61,16 +68,16 @@ def generate_image(prompt: str):
 
 @app.post("/generate_image")
 async def generate_image_endpoint(description: UploadFile):
-    transcribed_audio = await transcribe_audio(description)
-    print(f"Transcribed audio: {transcribed_audio}")
+    try:
+        transcribed_audio = await transcribe_audio(description)
+        generated_prompt = generate_prompt(transcribed_audio)
+        generated_image = generate_image(generated_prompt)
 
-    generated_prompt = generate_prompt(transcribed_audio)
-    print(f"Generated promt: {generated_prompt}")
+        memory_stream = io.BytesIO()
+        generated_image.save(memory_stream, format="PNG")
+        image_bytes = memory_stream.getvalue()
 
-    generated_image = generate_image(generated_prompt)
-
-    memory_stream = io.BytesIO()
-    generated_image.save(memory_stream, format="PNG")
-    image_bytes = memory_stream.getvalue()
-
-    return Response(content=image_bytes, media_type="image/png")
+        return Response(content=image_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error(f"Erreur lors de la génération de l'image : {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
