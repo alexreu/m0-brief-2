@@ -1,2 +1,4 @@
 2026-03-11 16:39:53.063 | INFO     | api:transcribe_audio:39 - Transcription de l'audio :  une voiture rouge
 2026-03-11 16:39:54.003 | INFO     | api:generate_prompt:55 - Prompt généré : A red car
+2026-03-11 17:11:17.392 | INFO     | api:transcribe_audio:39 - Transcription de l'audio :  Une moto verte.
+2026-03-11 17:11:18.443 | INFO     | api:generate_prompt:55 - Prompt généré : A green motorcycle.
