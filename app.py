@@ -16,7 +16,6 @@ with st.form("audio_form"):
     if submitted:
         if image_description is not None:
             try:
-                st.session_state.loading = True
                 with st.spinner("Génération de l'image en cours..."):
                     response = requests.post(
                         "http://localhost:8000/generate_image",
